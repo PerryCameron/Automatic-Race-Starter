@@ -74,8 +74,8 @@ void addBackground () {
   }
 }
 
-void topBar (int poX, int poY, uint32_t back_text_color) { // poX = 150  poY = 8 topBar(150, 8);
-  Serial.println("[top_Bar()]: Printed top red bar to screen ");
+void setupTopBar (int poX, int poY, uint32_t back_text_color) { // poX = 150  poY = 8 setupTopBar(150, 8);
+  Serial.print("[top_Bar()]: Printin top red bar to screen with race type ");
   tft.setTextColor(TFT_GRAY, back_text_color);
 
   if (ars_initialized == 0) { // If true this is the first time starting up
@@ -92,8 +92,9 @@ void topBar (int poX, int poY, uint32_t back_text_color) { // poX = 150  poY = 8
     }
   }
   switch (race_type) {
-    case 0: {
+    case 0: {     
         if (STATE == NORMAL_MODE) {
+          Serial.println("[Rule 26]");
           tft.drawCentreString("Rule 26 start", poX, poY, 4);
           tft.setTextColor(TFT_YELLOW);
           tft.drawCentreString("Rule 26 start", poX - 2, poY - 2, 4);
@@ -101,25 +102,25 @@ void topBar (int poX, int poY, uint32_t back_text_color) { // poX = 150  poY = 8
         break;
       }
     case 1: {
+        Serial.println("[Dinghy]");
         tft.drawCentreString("Dinghy Start", poX, poY, 4);
         tft.setTextColor(TFT_YELLOW);
         tft.drawCentreString("Dinghy Start", poX - 2, poY, 4);
         break;
       }
     case 2: {
+        Serial.println("[Match]");
         tft.drawCentreString("Match Racing", poX, poY, 4);
         tft.setTextColor(TFT_YELLOW);
         tft.drawCentreString("Match Racing", poX - 2, poY, 4);
         break;
       }
   }
-  // I think I can get rid of below, keeping for now to make sure it is not a hack to fix a bug
-  // if (temp_timer_mm != timer_mm)  counterSetup(18, 65);   // only if the race type changes does the counter write to the screen
-  temp_timer_mm = timer_mm;
+  active_timer_mm = timer_mm;  // do I need this?  Why didn't I document it?
 }
 
-void bottomBar () {
-  Serial.print("[bottomBar()] Setup or change status of bottom bar to ");
+void setupBottomBar () {
+  Serial.print("[setupBottomBar()] Bottom bar set to ");
   if (ars_initialized == 0 ) {
     tft.drawFastHLine(0, 280, 480, TFT_YELLOW);
     tft.drawFastHLine(0, 281, 480, TFT_OLIVE);
@@ -131,7 +132,7 @@ void bottomBar () {
   tft.setTextColor(TFT_MAROON, TFT_BLACK);
   switch (STATE) {
     case NORMAL_MODE: {   // Normal Mode
-        Serial.print("normal mode");
+        Serial.print("[normal mode]");
         tft.drawCentreString("Settings", 70, 317, 4);
         tft.drawCentreString("Horn", 240, 317, 4);
         tft.drawCentreString("Start/Reset", 400, 317, 4);
@@ -142,7 +143,7 @@ void bottomBar () {
         break;
       }
     case SETTINGS_MODE: {   // Settings Mode
-        Serial.print("settings mode");
+        Serial.print("[settings mode]");
         tft.drawCentreString("Done", 70, 317, 4);
         tft.drawCentreString("Select", 240, 317, 4);
         tft.drawCentreString("Change", 400, 317, 4);
@@ -153,7 +154,7 @@ void bottomBar () {
         break;
       }
     case CLOCK_CHANGE_MODE: {   // Clock Change Mode
-        Serial.print("clock change mode");
+        Serial.print("[clock change mode]");
         tft.drawCentreString("Done", 70, 317, 4);
         tft.drawCentreString("Select", 240, 317, 4);
         tft.drawCentreString("Change", 400, 317, 4);
@@ -167,8 +168,8 @@ void bottomBar () {
   Serial.println();
 }
 
-void untitledBox (int poX, int poY, int widtH, int heighT, int diV) {  // box to left  poX = 8  poY = 50 widtH = 260 heighT = 217  blackBox1(8,50,260,217); diV = dividing line
-  Serial.println("[untitledBox()]: Printing untitled box (timer/status) to TFT ");
+void setupUntitledBox (int poX, int poY, int widtH, int heighT, int diV) {  // box to left  poX = 8  poY = 50 widtH = 260 heighT = 217  blackBox1(8,50,260,217); diV = dividing line
+  Serial.println("[setupUntitledBox()]: Printing untitled box (timer/status) to TFT ");
   int middle = round(heighT * 0.718);
   int topH = round(heighT * 0.562);
   tft.fillRoundRect(poX + 3, poY + 2, widtH + 3, heighT + 3, 12, TFT_OLIVE);
@@ -186,8 +187,8 @@ void untitledBox (int poX, int poY, int widtH, int heighT, int diV) {  // box to
   }
 }
 
-void titledBox (int poX, int poY, int widtH, int heighT, int diV, uint16_t tColor) {  // box to right  drawRoundRect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r, uint16_t color)
-  Serial.print("[titledBox()]: Printing titled box (roll/warning) to TFT ");
+void setupTitledBox (int poX, int poY, int widtH, int heighT, int diV, uint16_t tColor) {  // box to right  drawRoundRect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r, uint16_t color)
+  Serial.print("[setupTitledBox()]: Printing titled box (roll/warning) to TFT ");
   Serial.println();
   tft.fillRoundRect(poX + 1, poY, widtH, heighT, 12, TFT_OLIVE);
   tft.fillRoundRect(poX - 2, poY - 2, widtH - 3, heighT - 3, 12, TFT_BLACK);
@@ -207,10 +208,14 @@ void titledBox (int poX, int poY, int widtH, int heighT, int diV, uint16_t tColo
   }
 }
 
-void rollTimeSetup (void) {
-  Serial.print("[rollTimeSetup()]: Printing rolling time counter to TFT");
+void setupRollingTime() {
+  Serial.print("[setupRollingTime()]: Printing rolling time of ");
+  addZeroIfUnderTen(rolling_mm);
+  Serial.print(":");
+  addZeroIfUnderTen(rolling_ss);
+  Serial.print(" to TFT");
   int16_t poX = 320;
-  int16_t poY = 117;  // rolling_mm and rolling_ss
+  int16_t poY = 117;  // active_rolling_mm and active_rolling_ss
   if (ars_initialized == 0 ) {
     tft.setTextColor(TFT_RED, TFT_MAROON);
     tft.drawString("Roll Time", 326, 80, 4);
@@ -225,11 +230,11 @@ void rollTimeSetup (void) {
   Serial.println();
 }
 
-void warningTimeSetup (void) {
-  Serial.print("[warningTimeSetup()]: Printing warning time of ");
-  Serial.print(warning_mm);
+void setupWarningTime() {
+  Serial.print("[setupWarningTime()]: Printing warning time of ");
+  addZeroIfUnderTen(warning_mm);
   Serial.print(":");
-  Serial.print(warning_ss);
+  addZeroIfUnderTen(warning_ss);
   Serial.print(" to TFT");
   int16_t poX = 320;
   int16_t poY = 214;
@@ -247,14 +252,30 @@ void warningTimeSetup (void) {
   Serial.println();
 }
 
-void rollingStart (uint8_t poX, uint8_t poY) {
-  Serial.print("[rollingStart()]: Updating status display for rolling start ");
+void disableWarningTime() {
+  Serial.print("[disableWarningTime()]: Darkening ");
+  addZeroIfUnderTen(warning_mm);
+  Serial.print(":");
+  addZeroIfUnderTen(warning_ss);
+  Serial.print(" to TFT");
+  int16_t poX = 320;
+  int16_t poY = 214;
+  printDigit(poX, poY, active_warning_mm, TFT_BLACK, TFT_MAROON, TFT_BROWN, SETTINGS_MODE, 6);
+  poX += 54;
+  printColon(poX, poY, TFT_BLACK, TFT_MAROON, TFT_BROWN, 6);
+  poX += 16;
+  printDigit(poX, poY, active_warning_ss, TFT_BLACK, TFT_MAROON, TFT_BROWN, SETTINGS_MODE, 6);
+  Serial.println();
+}
+
+void setupRollingStartIndicator (uint8_t poX, uint8_t poY) {
+  Serial.print("[setupRollingStartIndicator()]: Updating status display for rolling start ");
   tft.setTextColor(TFT_MAROON, TFT_BLACK);
   if (rolling_start) {
-    Serial.print("rollingStart is enabled");
+    Serial.print("[enabled]");
     tft.fillCircle(poX - 25, poY + 10, 12, TFT_GREEN);
   } else {
-    Serial.print("rollingStart is disabled");
+    Serial.print("[disabled]");
     tft.fillCircle(poX - 25, poY + 10, 12, TFT_RED);
   }
 tft.drawString("Rolling Start", poX, poY, 4);
@@ -264,12 +285,14 @@ tft.drawCircle(poX - 25, poY + 10, 12, TFT_LIGHT_GRAY);
 Serial.println();
 }
 
-void warningHorn (uint8_t poX, uint8_t poY) {
-  Serial.print("[warningHorn()]: updating status display for warning horn ");
+void setupWarningHornIndicator (uint8_t poX, uint8_t poY) {
+  Serial.print("[setupWarningHornIndicator()]: updating status display for warning horn ");
   tft.setTextColor(TFT_MAROON, TFT_BLACK);
   if (warning_horn) {
+    Serial.print("[enabled]");
     tft.fillCircle(poX - 25, poY + 10, 12, TFT_GREEN);
   } else {
+    Serial.print("[disabled]");
     tft.fillCircle(poX - 25, poY + 10, 12, TFT_RED);
   }
   tft.drawString("Warning Horn", poX, poY, 4);
@@ -322,8 +345,8 @@ void setupTimeChange() {   // sets up time change screen
   Serial.println("[setupTimeChange(): Set mode to clock change" );
   STATE = CLOCK_CHANGE_MODE;
   addBackground();
-  bottomBar ();
-  untitledBox(30, 95, 410, 100, 0);
+  setupBottomBar ();
+  setupUntitledBox(30, 95, 410, 100, 0);
   Serial.println("[setupTimeChange(): Printed clock change screen to TFT " );
   timeChange = 1;  // allows to move to minutes upon first hit of select button.
   //        tft.fillRect(48, 105, 110, 82, TFT_YELLOW);  // expieramental yellow highlighting
@@ -359,7 +382,7 @@ void setupSettingsScreen() {
   race_mode[2] = "Match";
 
   addBackground();
-  untitledBox(4, 4, 467, 265, 0);
+  setupUntitledBox(4, 4, 467, 265, 0);
 
   tft.setTextColor(TFT_MAROON);
   tft.drawString("Race Type", 16, 22, 4);
@@ -425,8 +448,8 @@ void selectItem (int selection) {
   printSelectionValue(selection, posY[selection]);     // setting value
 }
 
-void timerSetup(uint16_t poX, uint16_t poY) {   // Writes the initial countdown to mode
-  Serial.print("[timerSetup()] Printing digits ");
+void setupTimer(uint16_t poX, uint16_t poY) {   // Writes the initial countdown to mode
+  Serial.print("[setupTimer()] Printing digits ");
   addZeroIfUnderTen(timer_mm);  // adds 0 if needed and prints number to console
   Serial.print(":");
   addZeroIfUnderTen(timer_ss);  // adds 0 if needed and prints number to console

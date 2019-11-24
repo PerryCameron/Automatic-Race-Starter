@@ -4,16 +4,21 @@ void performTaskEachSecond () {  // syncs digital clock and all timers to update
     targetTime = millis() + 1000; // 1000ms is 1 second b
     moveClockForward(340, 8);  // moves clock on TFT to next current time constant
     if (counter_enable == TIMER_COUNT) {  // set counter off of digital clock
-      countDown(TIMER_SET, timer_mm, timer_ss);
+      countDown(TIMER_SET, active_timer_mm, active_timer_ss);
       Serial.println();
     }
     if (counter_enable == WARNING_COUNT) {
-      countDown(WARNING_TIME, warning_mm, warning_ss);
+      countDown(WARNING_TIME, active_warning_mm, active_warning_ss);
       Serial.println();
     }
     if (counter_enable == ROLLING_COUNT) {
-      countDown(ROLLING_TIME, rolling_mm, rolling_ss);
-      Serial.println();
+
+      if (active_rolling_mm == 0 && active_rolling_ss == 0) {  // if there is no time set for rolling kick it back to the timer
+        counter_enable = TIMER_COUNT;
+      } else {
+        countDown(ROLLING_TIME, active_rolling_mm, active_rolling_ss);
+        Serial.println();
+      }
     }
   }
 }
@@ -24,8 +29,10 @@ void countDown(uint8_t counterSelected, uint8_t count_mm, uint8_t count_ss) {
   if (count_ss == 0) {  // this creates delay to sync counter to clock // this will never be true after inital start
     count_ss = 60;
   } else if (count_ss == 60) { // since this is 'else if' it waits until next loop to begin, this is how it syncs to clock
-    count_mm--;
-    count_ss--;
+    if (count_mm > 0) count_mm--;  // protection from going negative
+    //count_mm--;
+    if (count_ss > 0) count_ss--;  // protection from going negative
+    // count_ss--;
   } else {
     count_ss--;
   }
@@ -49,29 +56,30 @@ void countDown(uint8_t counterSelected, uint8_t count_mm, uint8_t count_ss) {
 }
 
 void timerCountDown (uint8_t count_mm, uint8_t count_ss) {
-  timer_mm = count_mm;  /// save to global varialbles for next loop.  we uses these so function is universal to all counters
-  timer_ss = count_ss;
+  active_timer_mm = count_mm;  /// save to global varialbles for next loop.  we uses these so function is universal to all counters
+  active_timer_ss = count_ss;
   switch (count_ss) {
     case 60: {
-        if (timer_mm != temp_timer_mm) {  // prevents from rewriting initial setup back to screen
+        if (timer_mm != active_timer_mm) {  // prevents from rewriting initial setup back to screen
           printDigit(154, 65, 0, TFT_BLACK, TFT_GRAY, TFT_AQUA, 2, 8); // prints 00 instead of 60
           Serial.println("Printing 00 to TFT");
         }
-        if (warning_ss == 1) {   // since rolling the warning counter into regular counter we start process with 1 second left on warning counter
-          printDigit(390, 214, 0, TFT_BLACK, TFT_GRAY, TFT_YELLOW, 2, 6); // this prints the 0 in sequence after the  warning counter has stopped.
-          warning_ss = 0;  // gets warning_ss unstuck off of 1  and allows chirper to work correctly
+        if (active_warning_ss == 1) {   // since rolling the warning counter into regular counter we start process with 1 second left on warning counter
+          //printDigit(390, 214, 0, TFT_BLACK, TFT_GRAY, TFT_YELLOW, 2, 6); // this prints the 0 in sequence after the  warning counter has stopped.
+          active_warning_ss = 0;  // gets active_warning_ss unstuck off of 1  and allows chirper to work correctly
+          disableWarningTime();
         }
-        if (rolling_ss == 1) {   // since rolling the rolling counter into regular counter we start process with 1 second left on rolling counter
+        if (active_rolling_ss == 1) {   // since rolling the rolling counter into regular counter we start process with 1 second left on rolling counter
           printDigit(390, 117, 0, TFT_BLACK, TFT_GRAY, TFT_YELLOW, 2, 6); // this prints the 0 in sequence after the  rolling counter has stopped.
         }
         break;
       }
     case 59: {
-        if (rolling_ss == 1) {   /// this resets rolling counter back to what it is set at - why did I do this here?
+        if (active_rolling_ss == 1) {   /// this resets rolling counter back to what it is set at - why did I do this here?
           //////// because i had to to make the roll counter seamlessly transition
-          rolling_mm = temp_rolling_mm;
-          rolling_ss = temp_rolling_ss;
-          rollTimeSetup();
+          active_rolling_mm = rolling_mm;
+          active_rolling_ss = rolling_ss;
+          setupRollingTime();
         }
         printDigit(18, 65, count_mm, TFT_BLACK, TFT_GRAY, TFT_AQUA, 2, 8);
         printDigit(154, 65, count_ss, TFT_BLACK, TFT_GRAY, TFT_AQUA, 2, 8);
@@ -82,37 +90,35 @@ void timerCountDown (uint8_t count_mm, uint8_t count_ss) {
         break;
       }
   }
-  // once we reach 0, the line below it no longer runs buzzer control or anything.  Must solve this problem
   if (count_ss == 60 && count_mm == 0) {  // we have reached 0, remember count_XX is temporary
-    //printTime(counterSelected);  // prints out timing info
     printTime(TIMER_COUNT);
     hornControl();  // determins if a buzzer and/or horn should sound
     printTime(); // prints time race started in console
-    timer_mm = timer_set;  // This resets the timer back to what is in settings
+    active_timer_mm = timer_mm;  // This resets the timer back to what is in settings
     if (TIMER_COUNT && rolling_start) {  // if we are in timer mode and have reached 0:00 ...
-      temp_rolling_mm = rolling_mm;  // save the rolling time for later   ---this looks like a hack
-      temp_rolling_ss = rolling_ss;
+      active_rolling_mm = rolling_mm;  // save the rolling time for later   ---this looks like a hack
+      active_rolling_ss = rolling_ss;
       counter_enable = ROLLING_COUNT;
       printCounterMode();
-       
-    } else {  // we are not roll starting
+
+    } else {  // we are not in timer mode
       counter_enable = NO_COUNT;   // turn off counter since we are not roll starting
-      printCounterMode();
+      printCounterMode(); // prints counter mode to serial console
+      //active_warning_mm = warning_mm;  // lets reset our warning clock minutes
+      //active_warning_ss = warning_ss; // lets reset our warning clock seconds
+      setupWarningTime(); // lets reset our warning clock TFT display
+      Serial.println("=======Timer Stopped=======");
     }
-    Serial.print("timerSetup(18, 65) launched here: ");
-    Serial.print(count_mm);
-    Serial.print(":");
-    Serial.println(count_ss);
-    timer_ss = 0;  // necessary to set display correct on TFT
-    timerSetup(18, 65);  // why doesn't this work for roll start?????
+    active_timer_ss = 0;  // necessary to set display correct on TFT
+    setupTimer(18, 65);  // why doesn't this work for roll start?????
   }
 }
 
 void rollingCountDown (uint8_t count_mm, uint8_t count_ss) {
-  rolling_mm = count_mm;  /// save to global varialbles for next loop.  we uses these so function is universal to all counters
-  rolling_ss = count_ss;
-  timer_mm = timer_set;  // reset counter back to what it started as in the settings.
-  timer_ss = temp_timer_ss;  // reset counter back to what it started as in the settings.
+  active_rolling_mm = count_mm;  /// save to global varialbles for next loop.  we uses these so function is universal to all counters
+  active_rolling_ss = count_ss;
+  active_timer_mm = timer_mm;  // reset counter back to what it started as in the settings.
+  active_timer_ss = timer_ss;  // reset counter back to what it started as in the settings.
   switch (count_ss) {
     case 60: {
         printDigit(390, 117, 0, TFT_BLACK, TFT_GRAY, TFT_YELLOW, 2, 6); // prints 00 instead of 60
@@ -135,8 +141,8 @@ void rollingCountDown (uint8_t count_mm, uint8_t count_ss) {
 }
 
 void warningCountDown (uint8_t count_mm, uint8_t count_ss) {
-  warning_mm = count_mm;  /// save to global varialbles for next loop.  we uses these so function is universal to all counters
-  warning_ss = count_ss;
+  active_warning_mm = count_mm;  /// save to global varialbles for next loop.  we uses these so function is universal to all counters
+  active_warning_ss = count_ss;
   switch (count_ss) {
     case 60: {
         printDigit(390, 214, 0, TFT_BLACK, TFT_GRAY, TFT_YELLOW, 2, 6); // prints 00 instead of 60

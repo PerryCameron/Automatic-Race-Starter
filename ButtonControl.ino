@@ -7,26 +7,27 @@ void buttonA (void) {   /// green button
           Serial.print("Timer was started");
           Serial.println();
           if (warning_horn) {  // warning horn is enabled
+            counter_enable = WARNING_COUNT;
             hornBurst(5, LONG, false);  // blow 5 quick 500ms horns, 500ms in beteen horns
             Serial.println("Warning timer started: [5 horn burst]");
-            temp_warning_mm = warning_mm;  // store original count for later
-            temp_warning_ss = warning_ss;
-            counter_enable = WARNING_COUNT;
+            active_warning_mm = warning_mm;  // store count for use
+            active_warning_ss = warning_ss;
           } else {
             counter_enable = TIMER_COUNT;  // start the timer
           }
-          temp_timer_mm = timer_mm;  // store original count for later
-          temp_timer_ss = timer_ss;
+          active_timer_mm = timer_mm;  // store original count for later
+          active_timer_ss = timer_ss;
         }  else {   // a counter is running
           Serial.println("Timer was stopped and reset");
           counter_enable = NO_COUNT;    // stop counter
-          timer_mm = temp_timer_mm;
-          timer_ss = temp_timer_ss;  // reset all variables
-          warning_mm = temp_warning_mm;
-          warning_ss = temp_warning_ss;
-          timerSetup(18, 65);  // reset the display to match reset of variables
-          rollTimeSetup();
-          warningTimeSetup();
+          hornburst = 0; // will turn off hornburst if you reset it while it is going off
+          active_timer_mm = timer_mm;  // put timer setting into the active timer variable for counting
+          active_timer_ss = timer_ss;  // put timer setting into the active timer variable for counting
+          active_warning_mm = warning_mm;  // put warning timer setting into the active timer variable for counting
+          active_warning_ss = warning_ss; // put warning timer setting into the active timer variable for counting
+          setupTimer(18, 65);  // reset the display to match reset of variables
+          setupRollingTime();
+          setupWarningTime();
         }
         break;
       }
@@ -93,7 +94,7 @@ void buttonC(void) {     /// blue button
         if (counter_enable == NO_COUNT) {  // only let us go to settings if counter has not started.
           STATE = SETTINGS_MODE;  //   located in void loop()
           setupSettingsScreen();
-          bottomBar();  // STATE = 1 here
+          setupBottomBar();  // STATE = 1 here
         }
         break;
       }
@@ -110,7 +111,7 @@ void buttonC(void) {     /// blue button
         RTC.set(now()); // uncomment for final program
         STATE = SETTINGS_MODE;  // turns off blinkItem()  located in void loop()
         setupSettingsScreen();
-        bottomBar();
+        setupBottomBar();
         break;
       }
       Serial.println();
@@ -214,7 +215,7 @@ void change(uint8_t item) {  ///{RACE_TYPE, TIMER_SET, ROLLING, ROLLING_TIME, WA
         Serial.print("[Race Type: ");
         race_type++;
         if (race_type > 2) race_type = 0; /// roll it over if nuber goes past number of race types
-        printRaceType ();  // prints type to Serial
+        printRaceType();  // prints type to Serial
         tft.setTextColor(TFT_BLUE);
         printSelectionValue(RACE_TYPE, 20);  // prints type to TFT
         setDefaultMinutes();  // sets Minutes
@@ -226,7 +227,6 @@ void change(uint8_t item) {  ///{RACE_TYPE, TIMER_SET, ROLLING, ROLLING_TIME, WA
         timer_mm++;
         if (timer_mm > 10) timer_mm = 1;  // allows you to select between 1-9 minutes for timer.
         printSelectionValue(TIMER_SET, 55);
-        timer_set = timer_mm;
         Serial.println(timer_mm);
         break;
       }
@@ -265,7 +265,7 @@ void change(uint8_t item) {  ///{RACE_TYPE, TIMER_SET, ROLLING, ROLLING_TIME, WA
         printSelectionValue(WARNING_HORN, 160);
         break;
       }
-    case WARNING_TIME: {
+    case WARNING_TIME: {  // allows you to change warning time
         Serial.print("Warning Time");
         if (warning_mm < 1) {
           warning_ss += 30;
@@ -277,7 +277,6 @@ void change(uint8_t item) {  ///{RACE_TYPE, TIMER_SET, ROLLING, ROLLING_TIME, WA
           warning_ss = 0;
           warning_mm = 1;
         }
-        // warningTimeSetup();
         printSelectionValue(WARNING_TIME, 195);
         break;
       }

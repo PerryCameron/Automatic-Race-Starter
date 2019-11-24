@@ -3,36 +3,36 @@ void printTime(uint8_t counterSelected) {
   switch (counterSelected) {
     case TIMER_SET: {
         Serial.print("Timer: ");
-        addZeroIfUnderTen(timer_mm);  // adds 0 if needed and prints number to console
+        addZeroIfUnderTen(active_timer_mm);  // adds 0 if needed and prints number to console
         Serial.print(":");
-        if (timer_ss == 60) {  // will clean it up for serial display
+        if (active_timer_ss == 60) {  // will clean it up for serial display
           Serial.print("00 ");
         } else {
-          addZeroIfUnderTen(timer_ss);  // adds 0 if needed and prints number to console
+          addZeroIfUnderTen(active_timer_ss);  // adds 0 if needed and prints number to console
           Serial.print(" ");
         }
         break;
       }
     case ROLLING_TIME: {
         Serial.print("Roller: ");
-        addZeroIfUnderTen(rolling_mm);  // adds 0 if needed and prints number to console
+        addZeroIfUnderTen(active_rolling_mm);  // adds 0 if needed and prints number to console
         Serial.print(":");
-        if (rolling_ss == 60) {
+        if (active_rolling_ss == 60) {
           Serial.print("00 ");
         } else {
-          addZeroIfUnderTen(rolling_ss);  // adds 0 if needed and prints number to console
+          addZeroIfUnderTen(active_rolling_ss);  // adds 0 if needed and prints number to console
           Serial.print(" ");
         }
         break;
       }
     case WARNING_TIME: {
         Serial.print("Warning: ");
-        addZeroIfUnderTen(warning_mm);
+        addZeroIfUnderTen(active_warning_mm);  //replacedIt
         Serial.print(":");
-        if (warning_ss == 60) {
+        if (active_warning_ss == 60) {
           Serial.print("00 ");
         } else {
-          addZeroIfUnderTen(warning_ss);
+          addZeroIfUnderTen(active_warning_ss);
           Serial.print(" ");
         }
         break;

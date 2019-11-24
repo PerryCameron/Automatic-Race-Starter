@@ -1,25 +1,24 @@
 void hornControl(void) {
   //Serial.print("[hornControl() ");
-
   switch (race_type) {
     case 0: {   // Rule 26 starts
         Serial.print("[rule 26] ");
-        if (counter_enable == TIMER_COUNT && warning_ss != 1) { // only chirp if the counter is counting
-          if (timer_mm == 5) {  // this is for the start sequence horn
+        if (counter_enable == TIMER_COUNT && active_warning_ss != 1) { // only chirp if the timer is active
+          if (active_timer_mm == 5) {  // this is for the start sequence horn
             r26_matchControl();
-            if (timer_ss == 60) Serial.print("[Attention Signal] ");  // horn is blowing and only print at start of horn blow
+            if (active_timer_ss == 60) Serial.print("[Attention Signal] ");  // horn is blowing and only print at start of horn blow
           }
-          if (timer_mm == 4) {  // this is for the 4 minute horn
+          if (active_timer_mm == 4) {  // this is for the 4 minute horn
             r26_matchControl();
-            if (timer_ss == 60) Serial.print("[P-flag up horn] ");  // horn is blowing and only print at start of horn blow
+            if (active_timer_ss == 60) Serial.print("[P-flag up horn] ");  // horn is blowing and only print at start of horn blow
           }
-          if (timer_mm == 1) {
+          if (active_timer_mm == 1) {
             r26_matchControl();
-            if (timer_ss == 60) Serial.print("[P-flag down horn] "); // horn is blowing and only print at start of horn blow
+            if (active_timer_ss == 60) Serial.print("[P-flag down horn] "); // horn is blowing and only print at start of horn blow
           }
-          if (timer_mm == 0) {
+          if (active_timer_mm == 0) {
             r26_matchControl();
-            if (timer_ss == 60) Serial.print("[start horn] ");  // horn is blowing and only print at start of horn blow
+            if (active_timer_ss == 60) Serial.print("[start horn] ");  // horn is blowing and only print at start of horn blow
           }
         }
         break;
@@ -32,30 +31,30 @@ void hornControl(void) {
     case 2: {   // Match Racing
         Serial.print("Match] ");
         Serial.println();
-        if (counter_enable == TIMER_COUNT && warning_ss != 1) { // only chirp if the counter is counting
-          if (timer_mm == 10) {  // this is for the start sequence horn
+        if (counter_enable == TIMER_COUNT && active_warning_ss != 1) { // only chirp if the counter is counting
+          if (active_timer_mm == 10) {  // this is for the start sequence horn
             r26_matchControl();
-            if (timer_ss == 60) Serial.print("[Flag F Displayed] ");  // horn is blowing and only print at start of horn blow
+            if (active_timer_ss == 60) Serial.print("[Flag F Displayed] ");  // horn is blowing and only print at start of horn blow
           }
-          if (timer_mm == 6) {  // this is for the 4 minute horn
+          if (active_timer_mm == 6) {  // this is for the 4 minute horn
             r26_matchControl();
-            if (timer_ss == 60) Serial.print("[Flag F Down] ");  // horn is blowing and only print at start of horn blow
+            if (active_timer_ss == 60) Serial.print("[Flag F Down] ");  // horn is blowing and only print at start of horn blow
           }
-          if (timer_mm == 5) {  // this is for the 4 minute horn
+          if (active_timer_mm == 5) {  // this is for the 4 minute horn
             r26_matchControl();
-            if (timer_ss == 60) Serial.print("[Numeral Pennant UP] ");  // horn is blowing and only print at start of horn blow
+            if (active_timer_ss == 60) Serial.print("[Numeral Pennant UP] ");  // horn is blowing and only print at start of horn blow
           }
-          if (timer_mm == 4) {
+          if (active_timer_mm == 4) {
             r26_matchControl();
-            if (timer_ss == 60) Serial.print("[P-Flag UP] "); // horn is blowing and only print at start of horn blow
+            if (active_timer_ss == 60) Serial.print("[P-Flag UP] "); // horn is blowing and only print at start of horn blow
           }
-          if (timer_mm == 1) {
+          if (active_timer_mm == 1) {
             r26_matchControl();
-            if (timer_ss == 60) Serial.print("[P-Flag DOWN] "); // horn is blowing and only print at start of horn blow
+            if (active_timer_ss == 60) Serial.print("[P-Flag DOWN] "); // horn is blowing and only print at start of horn blow
           }
-          if (timer_mm == 0) {
+          if (active_timer_mm == 0) {
             r26_matchControl();
-            if (timer_ss == 60) Serial.print("[Numeral Pennant Down] ");  // horn is blowing and only print at start of horn blow
+            if (active_timer_ss == 60) Serial.print("[Numeral Pennant Down] ");  // horn is blowing and only print at start of horn blow
           }
         }
         break;
@@ -64,7 +63,7 @@ void hornControl(void) {
 }
 
 void r26_matchControl (void) {
-  switch (timer_ss) {
+  switch (active_timer_ss) {
     case 30: {
         tone( buzzer, 2000, 300);
         Serial.print("[Buzzer 300ms] ");
@@ -116,20 +115,20 @@ void r26_matchControl (void) {
 }
 
 void dinghyControl () {
-  if (counter_enable == TIMER_COUNT && warning_ss != 1) { // only chirp if the counter is counting
-    if (timer_mm == 3) {
+  if (counter_enable == TIMER_COUNT && active_warning_ss != 1) { // only chirp if the counter is counting
+    if (active_timer_mm == 3) {
       hornBurst(3, LONG, false);
       Serial.print("[Horn 3 Long 3:00] ");
-    } else if (timer_mm == 2) {
-      switch (timer_ss) {
+    } else if (active_timer_mm == 2) {
+      switch (active_timer_ss) {
         case 60: {
             hornBurst(2, LONG, false);
             Serial.print("[Horn 2 Long 2:00] ");
             break;
           }
       }
-    } else if (timer_mm == 1) {
-      switch (timer_ss) {
+    } else if (active_timer_mm == 1) {
+      switch (active_timer_ss) {
         case 30: {
             hornBurst(3, LONG, true);
             Serial.print("[Horn 1 Long 3 Short 1:30] ");
@@ -141,8 +140,8 @@ void dinghyControl () {
             break;
           }
       }
-    } else if (timer_mm == 0) {
-      switch (timer_ss) {
+    } else if (active_timer_mm == 0) {
+      switch (active_timer_ss) {
         case 60: {  // this blows the horn at 0
             blowhorn(LONG);
             Serial.print("[Horn 1 Long 0:00] ");
