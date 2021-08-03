@@ -15,3 +15,7 @@ Features
 * Buzzer
 * Simple 3 button operation
 
+<p>
+    <img src="https://raw.githubusercontent.com/PerryCameron/Automatic-Race-Starter/master/images/IMG_3169.JPG"  />
+</p>
+
