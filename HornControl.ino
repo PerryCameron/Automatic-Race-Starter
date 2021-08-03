@@ -23,8 +23,8 @@ void hornControl(void) {
         }
         break;
       }
-    case 1: {   // Dighny starts
-        Serial.print("Dighny] ");
+    case 1: {   // Dingy starts
+        Serial.print("Dingy] ");
         dinghyControl();
         break;                            // needs code
       }
