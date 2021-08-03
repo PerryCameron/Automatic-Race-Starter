@@ -54,7 +54,7 @@ void printRaceType () {  // print to serial
         break;
       }
     case 1: {
-        Serial.print("Dinghy] ");
+        Serial.print("Dingy] ");
         break;
       }
     case 2: {
