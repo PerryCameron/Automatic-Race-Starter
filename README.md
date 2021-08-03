@@ -17,7 +17,9 @@ Features
 
 #### Used Libraries
 [TFT_HX8357](https://github.com/Bodmer/TFT_HX8357)
+
 [DS3232RTC](https://github.com/JChristensen/DS3232RTC)
+
 [JC_Button](https://github.com/JChristensen/JC_Button)
 
 
