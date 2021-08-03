@@ -120,14 +120,10 @@ void buttonC(void) {     /// blue button
 
 void printSelectionValue (int selection, int posY) { /// prints each selection in settings mode
   Serial.print("[printSelectionValue()] ");
-  const char *race_mode[3];
-  race_mode[RULE26] = "Rule 26";
-  race_mode[DINGHY] = "Dinghy";
-  race_mode[MATCH] = "Match";
+  const char *race_mode[3] = { "Rule 26", "Dingy", "Match" };
+
   // uint8_t race_type = 0;  // What race type  Rule 26 = 0, Dinghy = 1, Match = 2
-  const char *booleanAnswer[2];
-  booleanAnswer[0] = "No";
-  booleanAnswer[1] = "Yes";
+  const char *booleanAnswer[2] = { "No","Yes" };
 
   switch (selection) {  //RACE_TYPE, TIMER_SET, ROLLING, ROLLING_TIME, WARNING_HORN, WARNING_TIME, TIME
     case RACE_TYPE: {
@@ -153,7 +149,7 @@ void printSelectionValue (int selection, int posY) { /// prints each selection i
         break;
       }
     case ROLLING: {
-        Serial.print("Printing rolling start (bool)");
+        Serial.print("Printing rolling start (boolean)");
         tft.drawString(booleanAnswer[rolling_start], 300, posY + 2, 4);
         Serial.print(booleanAnswer[rolling_start]);
         break;
@@ -175,7 +171,7 @@ void printSelectionValue (int selection, int posY) { /// prints each selection i
         break;
       }
     case WARNING_HORN: {
-        Serial.print("Printing warning horn (bool) to TFT ");
+        Serial.print("Printing warning horn (boolean) to TFT ");
         tft.drawString(booleanAnswer[warning_horn], 300, posY + 2, 4);
         Serial.print(booleanAnswer[warning_horn]);
         break;
